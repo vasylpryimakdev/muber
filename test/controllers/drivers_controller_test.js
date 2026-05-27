@@ -7,12 +7,12 @@ const Driver = mongoose.model('driver');
 
 describe('Drivers controller', () => {
   it('Post to /api/drivers creates a new driver', (done) => {
-    Driver.countDocuments().then(count => {
+    Driver.countDocuments().then((count) => {
       request(app)
         .post('/api/drivers')
         .send({ email: 'test@test.com' })
         .end(() => {
-          Driver.countDocuments().then(newCount => {
+          Driver.countDocuments().then((newCount) => {
             assert(count + 1 === newCount);
             done();
           });
@@ -30,7 +30,7 @@ describe('Drivers controller', () => {
       });
   });
 
-  it('Put to /api/drivers/id can update a record', done => {
+  it('Put to /api/drivers/id can update a record', (done) => {
     const driver = new Driver({ email: 'test@test.com', driving: false });
 
     driver.save().then(() => {
@@ -38,11 +38,25 @@ describe('Drivers controller', () => {
         .put(`/api/drivers/${driver._id}`)
         .send({ driving: true })
         .end(() => {
-          Driver.findOne({ email: 'test@test.com' })
-            .then(driver => {
-              assert(driver.driving === true);
-              done();
-            });
+          Driver.findOne({ email: 'test@test.com' }).then((driver) => {
+            assert(driver.driving === true);
+            done();
+          });
+        });
+    });
+  });
+
+  it('Delete to /api/drivers/:id can delete a record', (done) => {
+    const driver = new Driver({ email: 'test@test.com' });
+
+    driver.save().then(() => {
+      request(app)
+        .delete(`/api/drivers/${driver._id}`)
+        .end(() => {
+          Driver.findOne({ email: 'test@test.com' }).then((driver) => {
+            assert(driver === null);
+            done();
+          });
         });
     });
   });
